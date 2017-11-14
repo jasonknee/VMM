@@ -19,36 +19,40 @@ namespace VirtualMemory
         {
             Size = size;
             _bitMap = new byte[Size];
-            InitMask();
+            _mask = new byte[8] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+            RunInit();
         }
         #endregion
 
         #region Methods
-        public void SetBit(int pos)
+        public int SetBit(int frameNumber)
         {
-            int frameNumber = pos / 8;
-            int positionInFrame = pos % 8;
-            _bitMap[frameNumber] = (byte)(_bitMap[frameNumber] ^ _mask[positionInFrame]);
+            int index = frameNumber / 8;
+            int byteDigit = frameNumber % 8;
+            _bitMap[index] = (byte)(_bitMap[index] | _mask[byteDigit]);
+            return frameNumber;
         }
 
-        public void UnsetBit(int pos)
+        public int UnsetBit(int frameNumber)
         {
-            int frameNumber = pos / 8;
-            int positionInFrame = pos % 8;
-            _bitMap[frameNumber] = (byte)(_bitMap[frameNumber] & ~_mask[positionInFrame]);
+            int index = frameNumber / 8;
+            int byteDigit = frameNumber % 8;
+            _bitMap[index] = (byte)(_bitMap[index] & ~_mask[byteDigit]);
+            return frameNumber;
         }
 
-        public bool GetBitAvailability(int pos)
+        public bool GetBitAvailability(int frameNumber)
         {
-            int frameNumber = pos / 8;
-            int positionInFrame = pos % 8;
-            if ((byte)(_bitMap[frameNumber] & _mask[positionInFrame]) != _mask[positionInFrame]) {
+            int index = frameNumber / 8;
+            int byteDigit = frameNumber % 8;
+            if ((byte)(_bitMap[index] & _mask[byteDigit]) != _mask[byteDigit]) {
                 return true;
             }
             return false;
         }
 
-        public int GetNextAvailableBit()
+        public int GetNextFreeBit()
         {
             for (int i = 0; i < 128; i++) {
                 for (int j = 0; j < 8; j++) {
@@ -59,12 +63,43 @@ namespace VirtualMemory
             }
             return -1;
         }
+
+
+        public int GetNextConsecutiveFreeBit()
+        {
+            int startingBit = 0;
+            int found = 0;
+
+            for (int i = 0; i < 128; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    if ((byte)(_bitMap[i] & _mask[j]) != _mask[j])
+                    {
+                        if (found == 0) 
+                        {
+                            startingBit = i * 8 + j;
+                            found = 1;
+                        }
+                        else if (found == 1)
+                        {
+                            return startingBit;
+                        }
+                    }
+                    else
+                    {
+                        found = 0;
+                    }
+                }
+            }
+            return -1;
+        }
         #endregion
 
         #region Helpers
-        void InitMask()
+        void RunInit()
         {
-            _mask = new byte[8] { 1, 2, 4, 8, 16, 32, 64, 128 };
+            SetBit(0);
         }
         #endregion
     }

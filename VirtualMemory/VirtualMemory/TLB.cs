@@ -24,19 +24,58 @@ namespace VirtualMemory
         #region Methods
         void TranslateVirtualAddress(int va)
         {
-            Tuple<int,int,int> spo = AddressTranslator.TranslateToSPO(va); 
-            foreach (TLBEntry entry in _table) {
-                if (entry.SP == spo.Item1) {
-                    
-                }
+            int sp = MemoryUtility.TranslateVirtualToSP(va);
+
+            if (HasEntryWithSP(sp)) // TLB HIT
+            {
+
+            }
+
+            else // TLB MISS
+            {
+                TLBEntry newEntry = getEntryWithLRU(0);
+                DecrementEntriesLRU();
+
+                newEntry.LRU = 3;
+                newEntry.SP = 0; // NEWLY INIT SP ADDRESS
+                newEntry.Address = 0; //  PM[PM[s] + p]
             }
             // return “m” or “h”
             // return PA or “pf” or “err” 
         }
 
-        void DecrementLRUEntries(int? limit)
+
+        bool HasEntryWithSP(int sp)
+        {
+            foreach (TLBEntry entry in _table)
+                if (entry.SP == sp)
+                    return true;
+            return false;
+
+        }
+
+        TLBEntry GetEntryWithSP(int sp)
+        {
+
+            foreach (TLBEntry entry in _table)
+            {
+                if (entry.SP == sp)
+                { // TLB HIT
+                    return entry;
+                }
+            }
+            return null;
+        }
+
+        void DecrementEntriesLRU(int limit = 0)
         {
         }
+
+        TLBEntry getEntryWithLRU(int LRU)
+        {
+            return new TLBEntry();
+        }
+
 
         #endregion
     }

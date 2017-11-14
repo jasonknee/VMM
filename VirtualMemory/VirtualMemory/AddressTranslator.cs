@@ -1,16 +1,13 @@
 ﻿using System;
 namespace VirtualMemory
 {
-    public static class AddressTranslator
+    public class AddressTranslator
     {
-        public static Tuple<int,int,int> TranslateToSPO(int virtualAddress)
+        public AddressTranslator()
         {
-            return new Tuple<int, int, int>(0, 0, 0);
+            
         }
 
-        public static int TranslateToVirtualAddress(int segmentNumber, int pageNumber, int pageOffset)
-        {
-            return 0;
-        }
+       
     }
 }

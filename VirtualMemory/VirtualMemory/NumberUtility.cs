@@ -1,7 +1,7 @@
 ﻿using System;
 namespace VirtualMemory
 {
-    public static class Common
+    public static class NumberUtility
     {
         #region Methods
         public static byte ConvertIntToByte(int i)

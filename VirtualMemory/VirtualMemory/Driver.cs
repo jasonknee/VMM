@@ -11,40 +11,26 @@ namespace VirtualMemory
             var bitMap = new BitMap(128);
             var mem = new PhysicalMem(bitMap);
 
-            Console.WriteLine("Next Consecutive Bit, {0}", bitMap.GetNextConsecutiveFreeBit());
+            mem.InsertIntoMemory(2, 2048);
+            bitMap.SetBit(2048 / 512);
 
-            for (int i = 0; i < 1000; i+=2)
-            {
-                bitMap.SetBit(i);
-            }
+            mem.InsertIntoMemory(2048, 512);
+            mem.InsertIntoMemory(2048 + 1, -1);
 
-            for (int i = 0; i < 1000; i += 3)
-            {
-                bitMap.SetBit(i);
-            }
+            Tuple<int, int, int> vector = MemoryUtility.TranslateVirtualToSPO(0);
+            int re = mem.Read(vector.Item1, vector.Item2, vector.Item3);
 
-            int s = 10;
-            int p = 256;
-            int w = 0;
-            int re = mem.Read(s, p, w);
-            int wr = mem.Write(s, p, w);
+            vector = MemoryUtility.TranslateVirtualToSPO(1048576);
+            re = mem.Read(vector.Item1, vector.Item2, vector.Item3);
             Console.WriteLine("Reading Line: {0}", re);
+
+
+            Tuple<int, int, int> vector1 = MemoryUtility.TranslateVirtualToSPO(1048586);
+            int wr = mem.Write(vector1.Item1, vector1.Item2, vector1.Item3);
             Console.WriteLine("Writing Line: {0}", wr);
 
-            //bitMap.UnsetBit(620);
-
-            Console.WriteLine("Next Available Bit, {0}", bitMap.GetNextFreeBit());
-            Console.WriteLine("Next Consecutive Bit, {0}", bitMap.GetNextConsecutiveFreeBit());
-
-            //for (int i = 0; i < 20; i++) {
-                //Console.WriteLine("i = {0}", i);
-                //Console.WriteLine("{0}", bitMap.GetBitAvailability(i));
-                //int j = bitMap.GetNextFreeBit();
-                //Console.WriteLine("Next Available Bit, {0}", j);
-                //bitMap.SetBit(j);
-                //bitMap.UnsetBit (j);
-
-            //}
+            Tuple<int, int, int> vector2 = MemoryUtility.TranslateVirtualToSPO(1049088);
+            int wr1 = mem.Write(vector2.Item1, vector2.Item2, vector2.Item3);
 
         }
     }

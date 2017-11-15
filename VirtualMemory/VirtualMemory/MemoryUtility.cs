@@ -31,7 +31,19 @@ namespace VirtualMemory
 
         public static Tuple<int, int, int> TranslateVirtualToSPO(int virtualAddress)
         {
-            return new Tuple<int, int, int>(0, 0, 0);
+            string binaryIntInStr = Convert.ToString(virtualAddress, 2);
+            while (binaryIntInStr.Length != 32) 
+                binaryIntInStr = string.Concat("0", binaryIntInStr);
+
+            string segmentStr = binaryIntInStr.Substring(4, 9);
+            string pageStr = binaryIntInStr.Substring(13, 10);
+            string offsetStr = binaryIntInStr.Substring(23, 9);
+
+            int segment = Convert.ToInt32(segmentStr, 2);
+            int page = Convert.ToInt32(pageStr, 2);
+            int offset = Convert.ToInt32(offsetStr, 2);
+
+            return new Tuple<int, int, int>(segment, page, offset);
         }
 
 

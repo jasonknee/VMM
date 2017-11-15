@@ -25,19 +25,27 @@ namespace VirtualMemory
 
             if (IsSegmentTableEntryValid(segmentNumber))
             {
+                Console.WriteLine("pf");
                 return -1; // OUTPUT: 'pf'
             }
                
             if (IsPageTableEntryInvalid(pageTableAddress, pageNumber))
             {
+                Console.WriteLine("pf");
                 return -1; // OUTPUT: 'pf'
             }
 
             if (IsSegmentTableEntryFree(segmentNumber))
+            {
+                Console.WriteLine("err");
                 return 0; // OUTPUT: 'err'
+            }
 
             if (IsPageTableEntryFree(pageTableAddress, pageNumber))
+            {
+                Console.WriteLine("err");
                 return 0; // OUTPUT: 'err'
+            }
 
             pageAddress = ReadFromMemory(pageTableAddress + pageNumber);
             return pageAddress + offset;
@@ -45,36 +53,36 @@ namespace VirtualMemory
 
         public int Write(int segmentNumber, int pageNumber, int offset)
         {
-            int pageAddress;
+            int pageAddress = 0;
             int pageTableAddress;
 
+
             if (IsSegmentTableEntryValid(segmentNumber)){
-                Console.WriteLine("st? {0}", segmentNumber);
+                Console.WriteLine("pf");
                 return -1; // OUTPUT: 'pf'
             }
 
             if (IsSegmentTableEntryFree(segmentNumber))
             {
                 int newPageTableAddress = AllocateNewPageTable();
-                Console.WriteLine("HOW TO GET HERE? {0}", newPageTableAddress); 
                 InsertIntoMemory(segmentNumber, newPageTableAddress);
             }
 
             pageTableAddress = ReadSegmentTableEntry(segmentNumber);
             if (IsPageTableEntryInvalid(pageTableAddress, pageNumber))
             {
-                Console.WriteLine("pt? {0}, {1}", pageTableAddress, pageNumber);
+                Console.WriteLine("pf");
                 return -1; // OUTPUT: 'pf'
             }
 
             if (IsPageTableEntryFree(pageTableAddress, pageNumber))
             {
-                int newPageAddress = AllocateNewPage();
-                InsertIntoMemory(pageNumber + pageTableAddress, newPageAddress);
+                pageAddress = AllocateNewPage();
+                InsertIntoMemory(pageNumber + pageTableAddress, pageAddress);
             }
 
             pageAddress = ReadFromMemory(pageTableAddress + pageNumber);
-            return pageAddress;
+            return pageAddress + offset;
         }
         #endregion
 
@@ -91,6 +99,8 @@ namespace VirtualMemory
         {
             int frameNumber = _bitmap.GetNextFreeBit();
             _bitmap.SetBit(frameNumber);
+            //Console.WriteLine("NExt free bit: {0}", frameNumber);
+
             return frameNumber * 512;
         }
 

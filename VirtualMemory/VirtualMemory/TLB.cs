@@ -9,52 +9,71 @@ namespace VirtualMemory
 
         #region Fields
         TLBEntry[] _table { get; set; }
+        PhysicalMem _pm;
         #endregion
 
         #region Properties
         #endregion
 
         #region Constructor
-        public TLB()
+        public TLB(PhysicalMem physicalMemRef)
         {
             _table = new TLBEntry[MAX_ENTRIES];
+            for (int i = 0; i < MAX_ENTRIES; i++)
+            {
+                _table[i] = new TLBEntry();
+            }
+            _pm = physicalMemRef;
+
         }
         #endregion
 
         #region Methods
-        void TranslateVirtualAddress(int va)
+        public int FindTLBMatch(int va)
         {
             int sp = MemoryUtility.TranslateVirtualToSP(va);
 
+            int PA;
             if (HasEntryWithSP(sp)) // TLB HIT
             {
-
+                Console.Write("h ");
+                TLBEntry newEntry = GetEntryWithSP(sp);
+                PA = newEntry.SP + MemoryUtility.TranslateVirtualToOffset(va);
+                DecrementLRU(newEntry.LRU);
+                newEntry.LRU = 3;
             }
 
             else // TLB MISS
             {
-                TLBEntry newEntry = getEntryWithLRU(0);
-                DecrementEntriesLRU();
+                Console.Write("m ");
+
+                Tuple<int, int, int> vector1 = MemoryUtility.TranslateVirtualToSPO(va);
+                TLBEntry newEntry = GetOldestEntry();
 
                 newEntry.LRU = 3;
-                newEntry.SP = 0; // NEWLY INIT SP ADDRESS
-                newEntry.Address = 0; //  PM[PM[s] + p]
+                newEntry.SP = sp; // NEWLY INIT SP ADDRESS
+                newEntry.Address = _pm.ReadPageTableEntry(_pm.ReadSegmentTableEntry(vector1.Item1), vector1.Item2); //  PM[PM[s] + p]
+                DecrementLRUExcept(newEntry.SP);
+                PA = newEntry.Address + vector1.Item3;
+
             }
-            // return “m” or “h”
-            // return PA or “pf” or “err” 
+            return PA;
         }
 
 
-        bool HasEntryWithSP(int sp)
+        public bool HasEntryWithSP(int sp)
         {
             foreach (TLBEntry entry in _table)
+            {
                 if (entry.SP == sp)
+                {
                     return true;
+                }
+            }
             return false;
-
         }
 
-        TLBEntry GetEntryWithSP(int sp)
+        public TLBEntry GetEntryWithSP(int sp)
         {
 
             foreach (TLBEntry entry in _table)
@@ -67,12 +86,38 @@ namespace VirtualMemory
             return null;
         }
 
-        void DecrementEntriesLRU(int limit = 0)
+        public void DecrementLRU(int limit = 0)
         {
+            foreach (TLBEntry entry in _table)
+                if (entry.LRU > limit)
+                    entry.LRU = entry.LRU - 1;
         }
 
-        TLBEntry getEntryWithLRU(int LRU)
+        public void DecrementLRUExcept(int sp)
         {
+            foreach (TLBEntry entry in _table)
+                if (entry.SP != sp)
+                    entry.LRU = entry.LRU - 1;
+        }
+
+        public TLBEntry GetOldestEntry()
+        {
+            foreach (TLBEntry entry in _table)
+            {
+                if (entry.LRU == -1)
+                {
+                    return entry;
+                }
+            }
+
+            foreach (TLBEntry entry in _table)
+            {
+                if (entry.LRU == 0)
+                {
+                    return entry;
+                }
+            }
+
             return new TLBEntry();
         }
 

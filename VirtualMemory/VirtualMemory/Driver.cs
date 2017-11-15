@@ -8,6 +8,7 @@ namespace VirtualMemory
     {
         static BitMap _bitMap;
         static PhysicalMem _physicalMemory;
+        static TLB _tlb = null;
 
         static void InitFileOne(string[] lines)
         {
@@ -54,6 +55,11 @@ namespace VirtualMemory
 
                 if (o == 0) // READ
                 {
+                    if (_tlb != null)
+                    {
+                        _tlb.FindTLBMatch(VA);
+                    }
+
                     Tuple<int, int, int> vector = MemoryUtility.TranslateVirtualToSPO(VA);
                     int re = _physicalMemory.Read(vector.Item1, vector.Item2, vector.Item3);
                     if (re != 0 && re != -1)
@@ -62,6 +68,11 @@ namespace VirtualMemory
 
                 else // WRITE
                 {
+                    if (_tlb != null)
+                    {
+                        _tlb.FindTLBMatch(VA);
+                    }
+
                     Tuple<int, int, int> vector1 = MemoryUtility.TranslateVirtualToSPO(VA);
                     int wr = _physicalMemory.Write(vector1.Item1, vector1.Item2, vector1.Item3);
                     if (wr != 0 && wr != -1)
@@ -77,15 +88,11 @@ namespace VirtualMemory
             return fileLines;
         }
 
-
-        static void Main(string[] args)
+        static void Run()
         {
             FileStream ostrm;
             StreamWriter writer;
             TextWriter oldOut = Console.Out;
-
-            _bitMap = new BitMap(128);
-            _physicalMemory = new PhysicalMem(_bitMap);
 
             Console.WriteLine("Enter input file #1: ");
             string fileOne = Console.ReadLine();
@@ -99,7 +106,11 @@ namespace VirtualMemory
 
             try
             {
-                ostrm = new FileStream("./Redirect.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                if (_tlb == null)
+                    ostrm = new FileStream("./output/77653453-1.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                else
+                    ostrm = new FileStream("./output/77653453-2.txt", FileMode.OpenOrCreate, FileAccess.Write);
+
                 writer = new StreamWriter(ostrm);
             }
             catch (Exception e)
@@ -113,8 +124,21 @@ namespace VirtualMemory
             InitFileTwo(fileTwoLines);
             Console.SetOut(oldOut);
             writer.Close();
-            ostrm.Close();
+            ostrm.Close(); 
+        }
 
+
+        static void Main(string[] args)
+        {
+            _bitMap = new BitMap(128);
+            _physicalMemory = new PhysicalMem(_bitMap);
+
+            Console.WriteLine("TLB? (y/n): ");
+            string response = Console.ReadLine();
+            if (response == "y")
+                _tlb = new TLB(_physicalMemory);
+
+            Run();
         }
     }
 }

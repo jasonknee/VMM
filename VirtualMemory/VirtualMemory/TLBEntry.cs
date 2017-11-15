@@ -12,6 +12,8 @@ namespace VirtualMemory
         #region Constructor
         public TLBEntry()
         {
+            SP = -1;
+            Address = -1;
         }
         #endregion
     }

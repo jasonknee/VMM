@@ -21,12 +21,24 @@ namespace VirtualMemory
 
         public static int TranslateVirtualToOffset(int virtualAddress)
         {
-            return 0;
+            string binaryIntInStr = Convert.ToString(virtualAddress, 2);
+            while (binaryIntInStr.Length != 32)
+                binaryIntInStr = string.Concat("0", binaryIntInStr);
+
+            string offsetStr = binaryIntInStr.Substring(23, 9);
+            int offset = Convert.ToInt32(offsetStr, 2);
+            return offset;
         }
 
         public static int TranslateVirtualToSP(int virtualAddress)
         {
-            return 0;
+            string binaryIntInStr = Convert.ToString(virtualAddress, 2);
+            while (binaryIntInStr.Length != 32)
+                binaryIntInStr = string.Concat("0", binaryIntInStr);
+
+            string spStr = binaryIntInStr.Substring(4, 19);
+            int sp = Convert.ToInt32(spStr, 2);
+            return sp;
         }
 
         public static Tuple<int, int, int> TranslateVirtualToSPO(int virtualAddress)

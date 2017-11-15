@@ -47,7 +47,7 @@ namespace VirtualMemory
                 return 0; // OUTPUT: 'err'
             }
 
-            pageAddress = ReadFromMemory(pageTableAddress + pageNumber);
+            pageAddress = ReadSegmentTableEntry(pageTableAddress + pageNumber);
             return pageAddress + offset;
         }
 
@@ -81,7 +81,7 @@ namespace VirtualMemory
                 InsertIntoMemory(pageNumber + pageTableAddress, pageAddress);
             }
 
-            pageAddress = ReadFromMemory(pageTableAddress + pageNumber);
+            pageAddress = ReadPageTableEntry(pageTableAddress, pageNumber);
             return pageAddress + offset;
         }
         #endregion
@@ -99,8 +99,6 @@ namespace VirtualMemory
         {
             int frameNumber = _bitmap.GetNextFreeBit();
             _bitmap.SetBit(frameNumber);
-            //Console.WriteLine("NExt free bit: {0}", frameNumber);
-
             return frameNumber * 512;
         }
 

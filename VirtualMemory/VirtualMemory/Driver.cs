@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 
 namespace VirtualMemory
 {
@@ -7,13 +9,13 @@ namespace VirtualMemory
         static BitMap _bitMap;
         static PhysicalMem _physicalMemory;
 
-        static void initFileOne(string[] lines)
+        static void InitFileOne(string[] lines)
         {
-            initPageTables(lines[0].Trim());
-            initPages(lines[1].Trim());
+            InitPageTables(lines[0].Trim());
+            InitPages(lines[1].Trim());
         }
 
-        static void initPageTables(string sf)
+        static void InitPageTables(string sf)
         {
             string[] arrayOfInputs = sf.Split();
             for (int i = 0, s, f; i < arrayOfInputs.Length; i=i+2)
@@ -26,7 +28,7 @@ namespace VirtualMemory
             }
         }
 
-        static void initPages(string psf)
+        static void InitPages(string psf)
         {
             string[] arrayOfInputs = psf.Split();
             for (int i = 0, p, s, f; i < arrayOfInputs.Length; i = i + 3)
@@ -42,7 +44,7 @@ namespace VirtualMemory
             }
         }
 
-        static void initFileTwo(string[] lines)
+        static void InitFileTwo(string[] lines)
         {
             string[] arrayOfInputs = lines[0].Trim().Split();
             for (int i = 0, o, VA; i < arrayOfInputs.Length; i = i + 2)
@@ -55,7 +57,7 @@ namespace VirtualMemory
                     Tuple<int, int, int> vector = MemoryUtility.TranslateVirtualToSPO(VA);
                     int re = _physicalMemory.Read(vector.Item1, vector.Item2, vector.Item3);
                     if (re != 0 && re != -1)
-                        Console.WriteLine("{0}", re);
+                        Console.Write("{0} ", re);
                 }
 
                 else // WRITE
@@ -63,32 +65,56 @@ namespace VirtualMemory
                     Tuple<int, int, int> vector1 = MemoryUtility.TranslateVirtualToSPO(VA);
                     int wr = _physicalMemory.Write(vector1.Item1, vector1.Item2, vector1.Item3);
                     if (wr != 0 && wr != -1)
-                        Console.WriteLine("{0}", wr);
+                        Console.Write("{0} ", wr);
                 }
             }
         }
 
+        static string[] GetFileLines(string file)
+        {
+            string startupPath = Environment.CurrentDirectory;
+            string[] fileLines = System.IO.File.ReadAllLines(@startupPath + "/input/" + file);
+            return fileLines;
+        }
+
+
         static void Main(string[] args)
         {
+            FileStream ostrm;
+            StreamWriter writer;
+            TextWriter oldOut = Console.Out;
+
             _bitMap = new BitMap(128);
             _physicalMemory = new PhysicalMem(_bitMap);
 
-
-            _physicalMemory.InsertIntoMemory(2, 2048);
-            _bitMap.SetBit(2048 / 512);
-
-            string startupPath = Environment.CurrentDirectory;
-
             Console.WriteLine("Enter input file #1: ");
-            string filenameOne = Console.ReadLine();
-            string[] fileOneLines = System.IO.File.ReadAllLines(@startupPath + "/input/" + filenameOne);
-            initFileOne(fileOneLines);
-
+            string fileOne = Console.ReadLine();
+            string[] fileOneLines = GetFileLines(fileOne);
+            InitFileOne(fileOneLines);
 
             Console.WriteLine("Enter input file #2: ");
-            string filenameTwo = Console.ReadLine();
-            string[] fileTwoLines = System.IO.File.ReadAllLines(@startupPath + "/input/" + filenameTwo);
-            initFileTwo(fileTwoLines);
+            string fileTwo = Console.ReadLine();
+            string[] fileTwoLines = GetFileLines(fileTwo);
+
+
+            try
+            {
+                ostrm = new FileStream("./Redirect.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                writer = new StreamWriter(ostrm);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Cannot open Redirect.txt for writing");
+                Console.WriteLine(e.Message);
+                return;
+            }
+
+            Console.SetOut(writer);
+            InitFileTwo(fileTwoLines);
+            Console.SetOut(oldOut);
+            writer.Close();
+            ostrm.Close();
+
         }
     }
 }

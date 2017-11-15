@@ -25,25 +25,25 @@ namespace VirtualMemory
 
             if (IsSegmentTableEntryValid(segmentNumber))
             {
-                Console.WriteLine("pf");
+                Console.Write("pf ");
                 return -1; // OUTPUT: 'pf'
             }
                
             if (IsPageTableEntryInvalid(pageTableAddress, pageNumber))
             {
-                Console.WriteLine("pf");
+                Console.Write("pf ");
                 return -1; // OUTPUT: 'pf'
             }
 
             if (IsSegmentTableEntryFree(segmentNumber))
             {
-                Console.WriteLine("err");
+                Console.Write("err ");
                 return 0; // OUTPUT: 'err'
             }
 
             if (IsPageTableEntryFree(pageTableAddress, pageNumber))
             {
-                Console.WriteLine("err");
+                Console.Write("err ");
                 return 0; // OUTPUT: 'err'
             }
 
@@ -58,7 +58,7 @@ namespace VirtualMemory
 
 
             if (IsSegmentTableEntryValid(segmentNumber)){
-                Console.WriteLine("pf");
+                Console.Write("pf ");
                 return -1; // OUTPUT: 'pf'
             }
 
@@ -71,7 +71,7 @@ namespace VirtualMemory
             pageTableAddress = ReadSegmentTableEntry(segmentNumber);
             if (IsPageTableEntryInvalid(pageTableAddress, pageNumber))
             {
-                Console.WriteLine("pf");
+                Console.Write("pf ");
                 return -1; // OUTPUT: 'pf'
             }
 

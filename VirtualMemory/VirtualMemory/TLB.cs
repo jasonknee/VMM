@@ -38,9 +38,11 @@ namespace VirtualMemory
             {
                 Console.Write("h ");
                 int index = GetEntryIndexWithSP(sp);
-                PA = _table[index].Address + MemoryUtility.TranslateVirtualToOffset(va);
                 DecrementLRU(_table[index].LRU);
+
+                _table[index].Address = _table[index].Address;
                 _table[index].LRU = 3;
+                PA = _table[index].Address + MemoryUtility.TranslateVirtualToOffset(va);
             }
 
             else // TLB MISS

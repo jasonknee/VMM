@@ -39,7 +39,7 @@ namespace VirtualMemory
             string spStr = binaryIntInStr.Substring(4, 19);
             int sp = Convert.ToInt32(spStr, 2);
 
-            Console.WriteLine("sp = {0} for VA {1}", sp, virtualAddress);
+            //Console.WriteLine("sp = {0} for VA {1}", sp, virtualAddress);
             return sp;
         }
 

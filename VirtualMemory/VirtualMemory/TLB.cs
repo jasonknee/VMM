@@ -32,15 +32,15 @@ namespace VirtualMemory
         public int FindTLBMatch(int va)
         {
             int sp = MemoryUtility.TranslateVirtualToSP(va);
+            int PA = 0;
 
-            int PA;
             if (HasEntryWithSP(sp)) // TLB HIT
             {
                 Console.Write("h ");
-                TLBEntry newEntry = GetEntryWithSP(sp);
-                PA = newEntry.SP + MemoryUtility.TranslateVirtualToOffset(va);
-                DecrementLRU(newEntry.LRU);
-                newEntry.LRU = 3;
+                int index = GetEntryIndexWithSP(sp);
+                PA = _table[index].Address + MemoryUtility.TranslateVirtualToOffset(va);
+                DecrementLRU(_table[index].LRU);
+                _table[index].LRU = 3;
             }
 
             else // TLB MISS
@@ -48,13 +48,16 @@ namespace VirtualMemory
                 Console.Write("m ");
 
                 Tuple<int, int, int> vector1 = MemoryUtility.TranslateVirtualToSPO(va);
-                TLBEntry newEntry = GetOldestEntry();
+                int index = GetOldestEntryIndex();
 
-                newEntry.LRU = 3;
-                newEntry.SP = sp; // NEWLY INIT SP ADDRESS
-                newEntry.Address = _pm.ReadPageTableEntry(_pm.ReadSegmentTableEntry(vector1.Item1), vector1.Item2); //  PM[PM[s] + p]
-                DecrementLRUExcept(newEntry.SP);
-                PA = newEntry.Address + vector1.Item3;
+                if (index != -1)
+                {
+                    _table[index].LRU = 3;
+                    _table[index].SP = sp; // NEWLY INIT SP ADDRESS
+                    _table[index].Address = _pm.ReadPageTableEntry(_pm.ReadSegmentTableEntry(vector1.Item1), vector1.Item2); //  PM[PM[s] + p]
+                    DecrementLRUExcept(sp);
+                    PA = _table[index].Address + vector1.Item3;
+                }
 
             }
             return PA;
@@ -73,52 +76,57 @@ namespace VirtualMemory
             return false;
         }
 
-        public TLBEntry GetEntryWithSP(int sp)
+        public int GetEntryIndexWithSP(int sp)
         {
-
+            int i = 0;
             foreach (TLBEntry entry in _table)
             {
                 if (entry.SP == sp)
                 { // TLB HIT
-                    return entry;
+                    return i;
                 }
+                i++;
             }
-            return null;
+            return -1;
         }
 
         public void DecrementLRU(int limit = 0)
         {
             foreach (TLBEntry entry in _table)
-                if (entry.LRU > limit)
+                if (limit < entry.LRU)
                     entry.LRU = entry.LRU - 1;
         }
 
         public void DecrementLRUExcept(int sp)
         {
             foreach (TLBEntry entry in _table)
-                if (entry.SP != sp)
+                if (entry.SP != sp && entry.LRU > 0)
                     entry.LRU = entry.LRU - 1;
         }
 
-        public TLBEntry GetOldestEntry()
+        public int GetOldestEntryIndex()
         {
+            int i = 0;
             foreach (TLBEntry entry in _table)
             {
                 if (entry.LRU == -1)
                 {
-                    return entry;
+                    return i;
                 }
+                i++;
             }
 
+            i = 0;
             foreach (TLBEntry entry in _table)
             {
                 if (entry.LRU == 0)
                 {
-                    return entry;
+                    return i;
                 }
+                i++;
             }
 
-            return new TLBEntry();
+            return -1;
         }
 
 

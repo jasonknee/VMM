@@ -38,21 +38,18 @@ namespace VirtualMemory
 
             string spStr = binaryIntInStr.Substring(4, 19);
             int sp = Convert.ToInt32(spStr, 2);
+
+            Console.WriteLine("sp = {0} for VA {1}", sp, virtualAddress);
             return sp;
         }
 
         public static Tuple<int, int, int> TranslateVirtualToSPO(int virtualAddress)
         {
-            //Console.WriteLine("VA: {0} ", virtualAddress);
-
 
             string binaryIntInStr = Convert.ToString(virtualAddress, 2);
             while (binaryIntInStr.Length != 32) 
                 binaryIntInStr = string.Concat("0", binaryIntInStr);
-
-
-            //Console.WriteLine("VA IN STR: {0} ", binaryIntInStr);
-
+            
             string segmentStr = binaryIntInStr.Substring(4, 9);
             string pageStr = binaryIntInStr.Substring(13, 10);
             string offsetStr = binaryIntInStr.Substring(23, 9);
@@ -61,8 +58,6 @@ namespace VirtualMemory
             int page = Convert.ToInt32(pageStr, 2);
             int offset = Convert.ToInt32(offsetStr, 2);
            
-            //Console.WriteLine("SPO: {0} {1} {2}", segmentStr, pageStr, offsetStr);
-
             return new Tuple<int, int, int>(segment, page, offset);
         }
 
@@ -85,7 +80,6 @@ namespace VirtualMemory
                 offsetBinary = string.Concat("0", offsetBinary);
 
             string binaryIntInStr = string.Concat(string.Concat(segmentBinary, pageBinary), offsetBinary);
-            //Console.WriteLine(binaryIntInStr);
             while (binaryIntInStr.Length != 32)
                 binaryIntInStr = string.Concat("0", binaryIntInStr);
 
@@ -97,15 +91,19 @@ namespace VirtualMemory
 
             Console.WriteLine("Segment: ");
             string segment = Console.ReadLine();
+            int s = Int32.Parse(segment);
+
             Console.WriteLine("Page: ");
             string page = Console.ReadLine();
+            int p = Int32.Parse(page);
+
             Console.WriteLine("Offset: ");
             string offset = Console.ReadLine();
-            int p = Int32.Parse(page);
-            int s = Int32.Parse(segment);
             int o = Int32.Parse(offset);
+
             int VA = MemoryUtility.TranslateSPOToVirtualAddress(s, p, o);
             Tuple<int, int, int> spo = MemoryUtility.TranslateVirtualToSPO(VA);
+
             Console.WriteLine(VA);
             Console.WriteLine("{0} {0} {0}", spo.Item1, spo.Item2, spo.Item3);
         }

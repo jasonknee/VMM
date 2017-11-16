@@ -130,15 +130,35 @@ namespace VirtualMemory
 
         static void Main(string[] args)
         {
-            _bitMap = new BitMap(128);
-            _physicalMemory = new PhysicalMem(_bitMap);
+            while (true)
+            {
+                //_bitMap = new BitMap(128);
+                //_physicalMemory = new PhysicalMem(_bitMap);
 
-            Console.WriteLine("TLB? (y/n): ");
-            string response = Console.ReadLine();
-            if (response == "y")
-                _tlb = new TLB(_physicalMemory);
+                //Console.WriteLine("TLB? (y/n): ");
+                //string response = Console.ReadLine();
+                //if (response == "y")
+                //    _tlb = new TLB(_physicalMemory);
+                //else
+                //    _tlb = null;
+                //Run();
 
-            Run();
+                Console.WriteLine("Segment: ");
+                string segment = Console.ReadLine();
+                Console.WriteLine("Page: ");
+                string page = Console.ReadLine();
+                Console.WriteLine("Offset: ");
+                string offset = Console.ReadLine();
+                int p =  Int32.Parse(page);
+                int s = Int32.Parse(segment);
+                int  o = Int32.Parse(offset);
+
+                int VA = MemoryUtility.TranslateSPOToVirtualAddress(s, p, o);
+                Tuple<int, int, int> spo = MemoryUtility.TranslateVirtualToSPO(VA);
+                Console.WriteLine(VA);
+                Console.WriteLine("{0} {0} {0}", spo.Item1, spo.Item2, spo.Item3);
+
+            }
         }
     }
 }

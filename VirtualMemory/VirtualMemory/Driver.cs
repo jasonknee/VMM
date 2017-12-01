@@ -24,8 +24,12 @@ namespace VirtualMemory
                 s = Int32.Parse(arrayOfInputs[i]);
                 f = Int32.Parse(arrayOfInputs[i+1]);
 
+                if (f > 0)
+                {
+                    _bitMap.SetBit(f/ 512);
+                    _bitMap.SetBit((f + 512) / 512);
+                }
                 _physicalMemory.InsertIntoMemory(s, f);
-                _bitMap.SetBit(s / 512);
             }
         }
 
@@ -39,9 +43,12 @@ namespace VirtualMemory
                 f = Int32.Parse(arrayOfInputs[i+2]);
 
                 int ptAdd = _physicalMemory.ReadSegmentTableEntry(s);
-                _physicalMemory.InsertIntoMemory(ptAdd+p, f);
-                if (f > 511)
-                    _bitMap.SetBit(f / 512);
+                if (ptAdd > 0) {
+                    _physicalMemory.InsertIntoMemory(ptAdd + p, f);
+                    if (f > 0) {
+                        _bitMap.SetBit(f / 512);
+                    }
+                }
             }
         }
 
@@ -84,7 +91,7 @@ namespace VirtualMemory
         static string[] GetFileLines(string file)
         {
             string startupPath = Environment.CurrentDirectory;
-            string[] fileLines = System.IO.File.ReadAllLines(@startupPath + "/input/" + file);
+            string[] fileLines = File.ReadAllLines(@startupPath + "/input/" + file);
             return fileLines;
         }
 
@@ -125,11 +132,14 @@ namespace VirtualMemory
             Console.SetOut(oldOut);
             writer.Close();
             ostrm.Close(); 
+            _bitMap.PrintMap();
+
         }
 
 
         static void Main(string[] args)
         {
+           
             while (true)
             {
                 _bitMap = new BitMap(128);

@@ -19,7 +19,7 @@ namespace VirtualMemory
         {
             Size = size;
             _bitMap = new byte[Size];
-            _mask = new byte[8] { 1, 2, 4, 8, 16, 32, 64, 128 };
+            _mask = new byte[8] { 128, 64, 32, 16, 8, 4, 2, 1 };
 
             RunInit();
         }
@@ -56,7 +56,7 @@ namespace VirtualMemory
         {
             for (int i = 0; i < 128; i++) {
                 for (int j = 0; j < 8; j++) {
-                    if ((byte) (_bitMap[i] & _mask[j]) != _mask[j]) {
+                    if ((byte) (_bitMap[i] & Convert.ToByte(_mask[j])) == 0) {
                         return i*8 + j;
                     }
                 }
@@ -74,7 +74,7 @@ namespace VirtualMemory
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    if ((byte)(_bitMap[i] & _mask[j]) != _mask[j])
+                    if ((byte)(_bitMap[i] & _mask[j]) == 0)
                     {
                         if (found == 0) 
                         {
@@ -94,6 +94,20 @@ namespace VirtualMemory
             }
             return -1;
         }
+
+        public int GetBitAt(int loc)
+        {
+
+            return (_bitMap[loc / 8] & (1 << (7 - (loc % 8)))) == 0 ? 0 : 1;
+        }
+
+        public void PrintMap()
+        {
+            foreach (var b in _bitMap)
+            {
+                Console.WriteLine(Convert.ToString(b, 2).PadLeft(8, '0'));
+            }
+        }
         #endregion
 
         #region Helpers
@@ -101,6 +115,7 @@ namespace VirtualMemory
         {
             SetBit(0);
         }
+
         #endregion
     }
 }

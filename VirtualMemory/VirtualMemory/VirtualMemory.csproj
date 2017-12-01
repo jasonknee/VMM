@@ -12,4 +12,7 @@
     <Compile Remove="VM.cs" />
     <Compile Remove="Translater.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tests\" />
+  </ItemGroup>
 </Project>
